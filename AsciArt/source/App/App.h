@@ -1,7 +1,9 @@
 #pragma once
+
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <string_view>
+#include "../App/Converter/Ñonverter.h"
 
 class App
 {
@@ -13,8 +15,9 @@ public:
 private:
 	void convertImage();
 private:
+	Ñonverter converter;
 	sf::RenderWindow app;
 	sf::Sprite asciArt;
-	sf::Texture texture;
+	std::vector<sf::Texture> textures;
 };
 

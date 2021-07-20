@@ -21,9 +21,15 @@
     <ClCompile Include="source\App\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\App\Converter\Сonverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\App\App.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\App\Converter\Сonverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

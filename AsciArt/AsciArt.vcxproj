@@ -149,9 +149,11 @@
   <ItemGroup>
     <ClCompile Include="source\App\App.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\App\Converter\Сonverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\App\App.h" />
+    <ClInclude Include="source\App\Converter\Сonverter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
