@@ -1,23 +1,21 @@
 #pragma once
 
-#include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <string_view>
-#include "../App/Converter/Ñonverter.h"
+
+#include "Core/Core.h"
 
 class App
 {
 public:
 	App(std::string_view title, sf::VideoMode size);
-	void run();
 	App() = delete;
 	~App() = default;
+public:
+	void run();
 private:
-	void convertImage();
-private:
-	Ñonverter converter;
+	Core core;
 	sf::RenderWindow app;
-	sf::Sprite asciArt;
-	std::vector<sf::Texture> textures;
+	std::vector<sf::Sprite>* images;
 };
 

@@ -1,81 +1,104 @@
-#include "�onverter.h"
+﻿#include "Сonverter.h"
 
-
-std::vector<sf::Texture> �onverter::convert(std::queue<std::string>& files)
+std::vector<sf::Sprite>* Сonverter::convert(std::queue<std::string>& files)
 {
-    std::vector<sf::Texture> textures;
     if (!files.empty()) {
         auto path = files.front();
-        sf::Image image;
-        if (!image.loadFromFile(path))
+        if (!image.loadFromFile(path)) {
             std::cerr << "Error open File\n";
+        }
         else {
-            sizeOfImage = image.getSize();
-            char asciTabel[] = { '.',',',':','+','*','?','%','S','#','@' };
-
-            auto toGrayScale = [&]() {
-                for (size_t i = 0; i < sizeOfImage.x; i++)
-                {
-                    for (size_t j = 0; j < sizeOfImage.y; j++)
-                    {
-                        auto pixel = image.getPixel(i, j);
-                        int avg = (pixel.r + pixel.g + pixel.b) / 3;
-                        image.setPixel(i, j, sf::Color(avg, avg, avg, pixel.a));
-                    }
-                }
-            };
-            std::vector<std::vector<char>> imageArray(sizeOfImage.x, std::vector<char>(sizeOfImage.y, 0));
-            auto map = [](float f1, float s1, float st1, float s2, float st2) {
-                return ((f1 - s1) / (st1 - s1)) * (st2 - s2) + s2;
-            };
-            auto toAsci = [&]() {
-                for (size_t i = 0; i < sizeOfImage.x; i++)
-                {
-                    for (size_t j = 0; j < sizeOfImage.y; j++)
-                    {
-                        auto pixel = image.getPixel(i, j);
-                        auto index = static_cast<int>(map(pixel.r, 0, 255, 0, 10 - 1));
-                        imageArray[i][j] = asciTabel[index];
-                    }
-                }
-            };
-            toGrayScale();
-            toAsci();
+            getNameFile(path);
+            imageToGray();
+            grayImageToAsci();
+            image.saveToFile(currentNameImage + ".png");
 
             sf::Texture texture;
             texture.loadFromImage(image);
-            textures.push_back(std::move(texture));
-
-            //or use c++17|FileSystem
-            auto posDot = path.find('.');
-            auto posLastSlach = path.find_last_of('\\');
-            auto name = path.substr(posLastSlach + 1, posDot - posLastSlach - 1);
-
-            image.saveToFile(name + ".png");
-            saveToFile(name + ".txt", imageArray);
+            imageTextures.push_back(std::move(texture));
         }
         files.pop();
     }
-    return textures;
+    texturesToSprites();    
+
+    return &images;
 }
 
-#include <fstream>
-
-void �onverter::saveToFile(const std::string& name, const std::vector<std::vector<char>>& imageArray)
+void Сonverter::imageToGray()
 {
-    system("clear");
-    std::ofstream image(name);
+    auto sizeOfImage = image.getSize();
+    for (size_t i = 0; i < sizeOfImage.x; i++)
+    {
+        for (size_t j = 0; j < sizeOfImage.y; j++)
+        {
+            auto pixel = image.getPixel(i, j);
+            int avg = (pixel.r + pixel.g + pixel.b) / 3;
+            image.setPixel(i, j, sf::Color(avg, avg, avg, pixel.a));
+        }
+    }
+}
+
+float Сonverter::matching(float value, float firstLow, 
+                          float firstHigh, float secondLow, float secondHigh)
+{
+    //(⊃｡•́‿•̀｡)⊃━✿✿✿✿✿✿
+    return ((value - firstLow) / (firstHigh - firstLow)) * (secondHigh - secondLow) + secondLow;
+}
+
+void Сonverter::grayImageToAsci()
+{
+    auto sizeOfImage = image.getSize();
+
+    constexpr std::string_view asciTabel = ".,:+*?%S#@";
+
+    std::vector<std::vector<char>> imageArray(sizeOfImage.x, std::vector<char>(sizeOfImage.y, 0));
+
+    for (size_t i = 0; i < sizeOfImage.x; i++)
+    {
+        for (size_t j = 0; j < sizeOfImage.y; j++)
+        {
+            auto pixel = image.getPixel(i, j);
+            auto index = static_cast<int>(matching(pixel.r, 0, 255, 0, 9));
+            imageArray[i][j] = asciTabel[index];
+        }
+    }
+
     for (size_t i = 0; i < sizeOfImage.x; i++)
     {
         for (size_t j = 0; j < sizeOfImage.y; j++)
         {
             std::cout << imageArray[j][i];//rotate image
-            image << imageArray[j][i];
         }
         std::cout << '\n';
-        image << '\n';
     }
-    image.close();
-
-
+    fileWrapp.saveImageToFile(currentNameImage + ".txt", imageArray);
 }
+
+void Сonverter::getNameFile(const std::string& path)
+{
+    std::filesystem::path filePath(path);
+    currentNameImage = filePath.stem().string();
+}
+
+void Сonverter::texturesToSprites()
+{
+    images.clear();
+    images.resize(imageTextures.size());
+    for (size_t i = 0; i < images.size(); i++)
+    {
+        images[i].setTexture(imageTextures[i]);
+        if (i) {
+            auto [x, y] = images[i - 1].getPosition();
+            auto [w, h] = imageTextures[i - 1].getSize();
+            int row = 0;
+            images[i].move(x + w, y + row * h);
+            if (i != 0 && i % 4 == 0)// :D
+                row++;
+        }
+
+    }
+}
+
+
+
+
